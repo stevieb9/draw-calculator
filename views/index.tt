@@ -1,0 +1,72 @@
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script type="text/javascript" src="javascripts/core.js"></script>
+
+    <!-- <link rel="stylesheet" type="text/css" href="css/core.css"> -->
+
+    <style>
+        table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+        th, td {
+          padding: 10px;
+        }
+    </style>
+</head>
+
+<html>
+<body>
+    <label for="account_balance">Enter total:</label>
+    <input type="text" class="needed" id="account_balance" size="8" maxlength="8" class="number_field" value="3000000">
+
+    <br><br>
+
+    <label for="monthly_draw">Month draw:</label>
+    <select name="monthly_draw" class="needed" id="monthly_draw">
+        <option value="5000">$5,000</option>
+        <option value="10000" selected>$10,000</option>
+        <option value="13000">$13,000</option>
+        <option value="15000">$15,000</option>
+        <option value="20000">$20,000</option>
+        <option value="50000">$50,000</option>
+        <option value="75000">$75,000</option>
+        <option value="100000">$100,000</option>
+    </select>
+
+    <br><br>
+
+    <label for="return-rate">Return rate:</label>
+    <select name="return_rate" class="needed" id="return_rate">
+        <option value="-5">-5 %</option>
+        <option value="0">0 %</option>
+        <option value="2">2 %</option>
+        <option value="5" selected>5 %</option>
+        <option value="8">8 %</option>
+        <option value="10">10 %</option>
+    </select>
+
+    <br><br>
+
+    You'll be ok for <b><div id="years"></div></b> years.
+
+    <br><br>
+
+    <table name="years_table" id="years_table">
+        <thead>
+        <tr>
+            <th>Year</th>
+            <th>Revenue</th>
+            <th>Balance</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+
+    <br><br>
+</body>
+</html>

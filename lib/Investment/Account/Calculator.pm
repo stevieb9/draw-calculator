@@ -3,50 +3,78 @@ package Investment::Account::Calculator;
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+use Dancer2;
+use Data::Dumper;
 
-sub __placeholder {}
+our $VERSION = '0.1';
 
-1;
-__END__
+get '/' => sub {
+    template 'index' => { 'title' => 'Investment::Account::Calculator' };
+};
 
-=head1 NAME
+post '/render' => sub {
+    my $params = from_json(request->body);
 
-Investment::Account::Calculator - One line description
+    my $balance = $params->{account_balance};
+    my $monthly_draw = $params->{monthly_draw};
+    my $return_rate = $params->{return_rate};
 
-=for html
-<a href="https://github.com/stevieb9/draw-calculator/actions"><img src="https://github.com/stevieb9/draw-calculator/workflows/CI/badge.svg"/></a>
-<a href='https://coveralls.io/github/stevieb9/draw-calculator?branch=main'><img src='https://coveralls.io/repos/stevieb9/draw-calculator/badge.svg?branch=main&service=github' alt='Coverage Status' /></a>
+    my %year_data;
 
+    my $months = 1;
+    my $years = 0;
 
-=head1 SYNOPSIS
+    my $revenue_total = 0;
 
-=head1 DESCRIPTION
+    while ($balance > 0) {
+        $balance -= $monthly_draw;
 
-=head1 METHODS
+        my $revenue_year = $balance * ($return_rate / 100);
+        my $revenue_month = $revenue_year / 12;
 
-=head2 name
+        $revenue_total += $revenue_month;
 
-Description.
+        $balance += $revenue_month;
 
-I<Parameters>:
+        last if $balance < 0;
+        last if $years >= 100;
+        last if $balance == "inf";
 
-    $bar
+        $year_data{$years}->{balance} = $balance;
+        $year_data{$years}->{revenue} += $revenue_month;
 
-I<Mandatory, String>: The name of the thing with the guy and the place.
+        if ($months % 12 == 0 && $months != 0) {
+            $years++;
+        }
 
-I<Returns>: C<0> upon success.
+        $months++;
+    };
 
-=head1 AUTHOR
+    my $revenue_avg = $years ? $revenue_total / $years : 0;
 
-Steve Bertrand, C<< <steveb at cpan.org> >>
+    my @year_list;
 
-=head1 LICENSE AND COPYRIGHT
+    for (sort { $a <=> $b } keys %year_data) {
 
-Copyright 2022 Steve Bertrand.
+#
+        $year_data{$_}->{balance} = sprintf '%.2f', $year_data{$_}->{balance};
+        $year_data{$_}->{revenue} = sprintf '%.2f', $year_data{$_}->{revenue};
+        while ($year_data{$_}->{balance} =~ s/(\d+)(\d\d\d)/$1\,$2/) {};
+        while ($year_data{$_}->{revenue} =~ s/(\d+)(\d\d\d)/$1\,$2/) {};
+        #
+        $year_data{$_}->{balance} = "\$$year_data{$_}->{balance}";
+        $year_data{$_}->{revenue} = "\$$year_data{$_}->{revenue}";
+#
+        push @year_list, $year_data{$_};
+    }
 
-This program is free software; you can redistribute it and/or modify it
-under the terms of the the Artistic License (2.0). You may obtain a
-copy of the full license at:
+    my $results = {
+        years               => $years,
+        year_data           => \@year_list,
+        year_avg_revenue    => $revenue_avg,
+    };
 
-L<http://www.perlfoundation.org/artistic_license_2_0>
+    return to_json($results);
+};
+
+true;
